@@ -33,11 +33,45 @@ def load_small_train(data_count = 10, shuffle = False):
             data.append(img)
             labels.append(fl)
             
-            
-    return np.array(data, dtype='int32'), np.array(labels, dtype='int32')
+    sep_ind = np.arange(len(data));
+    np.random.shuffle(sep_ind);
+    
+    data = np.array(data, dtype='int32');
+    labels = np.array(labels, dtype='int32');
+     
+    x_train = data[sep_ind[:-data_count*10/3]];
+    y_train = labels[sep_ind[:-data_count*10/3]];
+
+    x_val = data[sep_ind[-data_count*10/3:]];
+    y_val = labels[sep_ind[-data_count*10/3:]];      
+           
+    return x_train, y_train, x_val, y_val
     
         
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
     
