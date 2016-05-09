@@ -39,10 +39,19 @@ print "Preparing to build Network ...";
 
 l_in = lasagne.layers.InputLayer(shape=(None, 480, 640, 3), input_var = X);
 
-l_hidden = lasagne.layers.DenseLayer(l_in, num_units = 100,
+l_in_drop = lasagne.layers.dropout(l_in, p = 0.2)
+
+l_hidden1 = lasagne.layers.DenseLayer(l_in_drop, num_units = 100,
                  nonlinearity=lasagne.nonlinearities.sigmoid)
 
-l_out = lasagne.layers.DenseLayer(l_hidden, num_units = 10, 
+l_hidden1_drop = lasagne.layers.dropout(l_hidden1, p=0.3);
+
+l_hidden2 = lasagne.layers.DenseLayer(l_hidden1_drop, num_units = 100,
+                 nonlinearity=lasagne.nonlinearities.sigmoid)
+
+l_hidden2_drop = lasagne.layers.dropout(l_hidden2, p=0.3);
+
+l_out = lasagne.layers.DenseLayer(l_hidden2_drop, num_units = 10, 
               nonlinearity=T.nnet.softmax)
 
 print "Network has been built"
