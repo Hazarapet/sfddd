@@ -5,7 +5,6 @@ Created on Fri May  6 20:53:25 2016
 """
 
 import numpy as np
-from scipy import misc
 import matplotlib.pyplot as plt
 import theano
 import time
@@ -28,7 +27,7 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 st_time = time.time()
-N_epoch = 100
+N_epoch = 10
 Lambda = 1e-3
 
 X = T.tensor4('X')
@@ -36,14 +35,19 @@ y = T.vector('y', dtype='int32')
 
 #############################################################
 ###################### Network Building #####################
-l_in = lasagne.layers.InputLayer(shape=(None, 3, 480, 640), input_var = X);
+print "Preparing to build Network ...";
 
-l_hidden = lasagne.layers.DenseLayer(l_in, num_units = 100)
+l_in = lasagne.layers.InputLayer(shape=(None, 3, 640, 480), input_var = X);
+
+l_hidden = lasagne.layers.DenseLayer(l_in, num_units = 100,
+                 nonlinearity=lasagne.nonlinearities.sigmoid)
 
 l_out = lasagne.layers.DenseLayer(l_hidden, num_units = 10, 
               nonlinearity=T.nnet.softmax)
 
-train_prediction = lasagne.layers.get_output(l_out)
+print "Network has been built"
+
+train_prediction = lasagne.layers.get_output(l_out);
 
 train_loss = lasagne.objectives.categorical_crossentropy(train_prediction, y)
 train_loss = train_loss.mean();
@@ -57,6 +61,8 @@ updates = lasagne.updates.nesterov_momentum(train_loss,
             
 # train loss function    
 train_fn = theano.function([X, y], [train_loss, train_acc], updates=updates)
+
+print "Train 'Prediction', 'Loss' 'Acc', 'Updates' and 'Train_fn' are ready"
 
 # ##############################################################
 # Test side
@@ -73,13 +79,20 @@ test_acc = T.mean(T.eq(T.argmax(test_prediction, axis=1), y),
                       
 val_fn = theano.function([X, y], [test_loss, test_acc])
 
+print "Test 'Prediction', 'Loss', 'Acc' and 'Val_fn' are ready"
 #############################################################
 ####################### Loading Sets ########################
 
+print "Loading X_train, y_train, X_val, y_val datasets ..."
+
 X_train, y_train, X_val, y_val = data_loader.load_small_train();
+
+print "Datasests are loaded"
 
 ##############################################################
 ######################## Training ############################
+
+print "Starting Training..."
 
 for epoch in range(N_epoch):
     train_err = 0;
