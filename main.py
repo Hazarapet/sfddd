@@ -37,7 +37,7 @@ y = T.vector('y', dtype='int32')
 ###################### Network Building #####################
 print "Preparing to build Network ...";
 
-l_in = lasagne.layers.InputLayer(shape=(None, 3, 640, 480), input_var = X);
+l_in = lasagne.layers.InputLayer(shape=(None, 480, 640, 3), input_var = X);
 
 l_hidden = lasagne.layers.DenseLayer(l_in, num_units = 100,
                  nonlinearity=lasagne.nonlinearities.sigmoid)
