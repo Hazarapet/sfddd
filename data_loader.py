@@ -3,7 +3,7 @@ Created on Sat May  7 18:12:17 2016
 
 @author: hazarapet
 """
-import Image
+import matplotlib.pyplot as plt
 import numpy as np
 import glob
 from scipy import misc
@@ -30,8 +30,12 @@ def load_small_train(data_count = 10, shuffle = False, image_size={'width': 640,
         files = np.array(files)
         for i in files[indexes]:
             img = misc.imread(i)
-            img = misc.imresize(img, [image_size['width'], image_size['height']])
-            img = img.transpose(2, 0, 1)
+            img = misc.imresize(img, [image_size['height'], image_size['width']])
+            # show resized image
+            #plt.imshow(img); 
+            #plt.show()
+            
+            img = img.transpose(2, 1, 0)            
             data.append(img)
             labels.append(fl)
             
