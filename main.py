@@ -27,8 +27,11 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 st_time = time.time()
-N_epoch = 10
-Lambda = 1e-3
+N_EPOCH = 10
+LAMBDA = 1e-3
+IMAGE_SIZE = {};
+IMAGE_SIZE['height'] = 120;
+IMAGE_SIZE['width'] = int(120*1.33);
 
 X = T.tensor4('X')
 y = T.vector('y', dtype='int32')
@@ -37,16 +40,16 @@ y = T.vector('y', dtype='int32')
 ###################### Network Building #####################
 print "Preparing to build Network ...";
 
-l_in = lasagne.layers.InputLayer(shape=(None, 480, 640, 3), input_var = X);
+l_in = lasagne.layers.InputLayer(shape=(None, 3, IMAGE_SIZE['width'], IMAGE_SIZE['height']), input_var = X);
 
 l_in_drop = lasagne.layers.dropout(l_in, p = 0.2)
 
-l_hidden1 = lasagne.layers.DenseLayer(l_in_drop, num_units = 100,
+l_hidden1 = lasagne.layers.DenseLayer(l_in_drop, num_units = 200,
                  nonlinearity=lasagne.nonlinearities.sigmoid)
 
 l_hidden1_drop = lasagne.layers.dropout(l_hidden1, p=0.3);
 
-l_hidden2 = lasagne.layers.DenseLayer(l_hidden1_drop, num_units = 100,
+l_hidden2 = lasagne.layers.DenseLayer(l_hidden1_drop, num_units = 200,
                  nonlinearity=lasagne.nonlinearities.sigmoid)
 
 l_hidden2_drop = lasagne.layers.dropout(l_hidden2, p=0.3);
@@ -94,7 +97,8 @@ print "Test 'Prediction', 'Loss', 'Acc' and 'Val_fn' are ready"
 
 print "Loading X_train, y_train, X_val, y_val datasets ..."
 
-X_train, y_train, X_val, y_val = data_loader.load_small_train();
+X_train, y_train, X_val, y_val = data_loader.load_small_train(
+    data_count=20, image_size=IMAGE_SIZE);
 
 print "Datasests are loaded"
 
@@ -103,7 +107,7 @@ print "Datasests are loaded"
 
 print "Starting Training..."
 
-for epoch in range(N_epoch):
+for epoch in range(N_EPOCH):
     train_err = 0;
     train_acc = 0;    
     train_batches = 0;
@@ -129,7 +133,7 @@ for epoch in range(N_epoch):
         
     # Then we print the results for this epoch:
     print("Epoch {} of {} took {:.3f}s".format(
-        epoch + 1, N_epoch, time.time() - start_time))
+        epoch + 1, N_EPOCH, time.time() - start_time))
     print("  training loss:\t\t{:.6f}".format(train_err / train_batches))
     print("  training accuracy:\t\t{:.2f} %".format(train_acc / train_batches * 100))
     print("  validation loss:\t\t{:.6f}".format(val_err / val_batches))

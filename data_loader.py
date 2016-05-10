@@ -13,7 +13,7 @@ TEST_PATH  = "data/test/"
 
 TRAIN_FOLDERS = ["c0", "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9"]
 
-def load_small_train(data_count = 10, shuffle = False):
+def load_small_train(data_count = 10, shuffle = False, image_size={'width': 640,'height': 480}):
     data = []
     labels = [];
     
@@ -30,13 +30,15 @@ def load_small_train(data_count = 10, shuffle = False):
         files = np.array(files)
         for i in files[indexes]:
             img = misc.imread(i)
+            img = misc.imresize(img, [image_size['width'], image_size['height']])
+            img = img.transpose(2, 0, 1)
             data.append(img)
             labels.append(fl)
             
     sep_ind = np.arange(len(data));
     np.random.shuffle(sep_ind);
     
-    data = np.array(data, dtype='int32');
+    data = np.array(data, dtype='int32')/256;
     labels = np.array(labels, dtype='int32');
      
     x_train = data[sep_ind[:-data_count*10/3]];
