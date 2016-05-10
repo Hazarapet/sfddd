@@ -29,9 +29,7 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
 st_time = time.time()
 N_EPOCH = 10
 LAMBDA = 1e-3
-IMAGE_SIZE = {};
-IMAGE_SIZE['height'] = 120;
-IMAGE_SIZE['width'] = int(120*1.33);
+IMAGE_SIZE = {'height': 240, 'width': int(240*1.33)};
 
 X = T.tensor4('X')
 y = T.vector('y', dtype='int32')
@@ -39,27 +37,26 @@ y = T.vector('y', dtype='int32')
 #############################################################
 ###################### Network Building #####################
 print "Preparing to build Network ...";
+network = {};
 
-l_in = lasagne.layers.InputLayer(shape=(None, 3, IMAGE_SIZE['width'], IMAGE_SIZE['height']), input_var = X);
+network['l_in'] = lasagne.layers.InputLayer(shape=(None, 3, IMAGE_SIZE['width'], IMAGE_SIZE['height']), input_var = X);
 
-l_in_drop = lasagne.layers.dropout(l_in, p = 0.1)
+network['conv_1'] = lasagne.layers.Conv2DLayer(network['l_in'], num_filters=50, filter_size=3)
 
-l_hidden1 = lasagne.layers.DenseLayer(l_in_drop, num_units = 200,
-                 nonlinearity=lasagne.nonlinearities.tanh)
+network['pool_1'] = lasagne.layers.Pool2DLayer(network['conv_1'], 2, mode='max')
 
-l_hidden1_drop = lasagne.layers.dropout(l_hidden1, p=0.3);
+network['conv_2'] = lasagne.layers.Conv2DLayer(network['pool_1'], num_filters=30, filter_size=3)
 
-l_hidden2 = lasagne.layers.DenseLayer(l_hidden1_drop, num_units = 200,
-                 nonlinearity=lasagne.nonlinearities.tanh)
+network['pool_2'] = lasagne.layers.Pool2DLayer(network['conv_2'], 2, mode='max')
 
-l_hidden2_drop = lasagne.layers.dropout(l_hidden2, p=0.3);
+#print network['conv_1'].W.shape.eval()
 
-l_out = lasagne.layers.DenseLayer(l_hidden2_drop, num_units = 10, 
+network['l_out'] = lasagne.layers.DenseLayer(network['pool_2'], num_units = 10, 
               nonlinearity=T.nnet.softmax)
 
 print "Network has been built"
 
-train_prediction = lasagne.layers.get_output(l_out);
+train_prediction = lasagne.layers.get_output(network['l_out']);
 
 train_loss = lasagne.objectives.categorical_crossentropy(train_prediction, y)
 train_loss = train_loss.mean();
@@ -67,7 +64,7 @@ train_loss = train_loss.mean();
 train_acc = T.mean(T.eq(T.argmax(train_prediction, axis=1), y), 
                    dtype=theano.config.floatX)
 
-params = lasagne.layers.get_all_params(l_out, trainable = True)
+params = lasagne.layers.get_all_params(network['l_out'], trainable = True)
 updates = lasagne.updates.nesterov_momentum(train_loss,
             params, learning_rate=0.01, momentum=0.9)
             
@@ -79,7 +76,7 @@ print "Train 'Prediction', 'Loss' 'Acc', 'Updates' and 'Train_fn' are ready"
 # ##############################################################
 # Test side
 # Test prediction
-test_prediction = lasagne.layers.get_output(l_out, deterministic=True)
+test_prediction = lasagne.layers.get_output(network['l_out'], deterministic=True)
 #f = theano.function([X], T.argmax(test_prediction, axis=1))
 
 # Loss function for train
@@ -132,7 +129,7 @@ for epoch in range(N_EPOCH):
         val_batches += 1;
         
     # Then we print the results for this epoch:
-    print("Epoch {} of {} took {:.3f}s".format(
+    print("Epoch {} of {} took {:.2f}s".format(
         epoch + 1, N_EPOCH, time.time() - start_time))
     print("  training loss:\t\t{:.6f}".format(train_err / train_batches))
     print("  training accuracy:\t\t{:.2f} %".format(train_acc / train_batches * 100))
@@ -168,24 +165,3 @@ for epoch in range(N_EPOCH):
 
 
 print("{:.3f}s Runtime".format(time.time() - st_time));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
