@@ -39,17 +39,19 @@ y = T.vector('y', dtype='int32')
 print "Preparing to build Network ...";
 network = {};
 
-network['l_in'] = lasagne.layers.InputLayer(shape=(None, 3, IMAGE_SIZE['width'], IMAGE_SIZE['height']), input_var = X);
+network['l_in'] = lasagne.layers.InputLayer(shape=(None, 1, IMAGE_SIZE['width'], IMAGE_SIZE['height']), input_var = X);
 
-network['conv_1'] = lasagne.layers.Conv2DLayer(network['l_in'], num_filters=50, filter_size=3)
+network['conv_1'] = lasagne.layers.Conv2DLayer(network['l_in'], 
+                    num_filters=50, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
 
 network['pool_1'] = lasagne.layers.Pool2DLayer(network['conv_1'], 2, mode='max')
 
-network['conv_2'] = lasagne.layers.Conv2DLayer(network['pool_1'], num_filters=30, filter_size=3)
+network['conv_2'] = lasagne.layers.Conv2DLayer(network['pool_1'], 
+                    num_filters=30, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
 
 network['pool_2'] = lasagne.layers.Pool2DLayer(network['conv_2'], 2, mode='max')
 
-#print network['conv_1'].W.shape.eval()
+print network['conv_1'].W.shape.eval()
 
 network['l_out'] = lasagne.layers.DenseLayer(network['pool_2'], num_units = 10, 
               nonlinearity=T.nnet.softmax)
