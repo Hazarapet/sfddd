@@ -28,7 +28,7 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 st_time = time.time()
-N_EPOCH = 5
+N_EPOCH = 3
 LAMBDA = 1e-3
 IMAGE_SIZE = {'height': 85, 'width': int(85*1.33)};
 
