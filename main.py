@@ -13,6 +13,7 @@ import lasagne.regularization as reg
 import theano.tensor as T
 
 import data_loader
+import test
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
     assert len(inputs) == len(targets)
@@ -27,9 +28,9 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 st_time = time.time()
-N_EPOCH = 10
+N_EPOCH = 5
 LAMBDA = 1e-3
-IMAGE_SIZE = {'height': 240, 'width': int(240*1.33)};
+IMAGE_SIZE = {'height': 85, 'width': int(85*1.33)};
 
 X = T.tensor4('X')
 y = T.vector('y', dtype='int32')
@@ -51,9 +52,15 @@ network['conv_2'] = lasagne.layers.Conv2DLayer(network['pool_1'],
 
 network['pool_2'] = lasagne.layers.Pool2DLayer(network['conv_2'], 2, mode='max')
 
+network['dense_1'] = lasagne.layers.DenseLayer(network['pool_2'], 
+                    num_units=5, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['dense_2'] = lasagne.layers.DenseLayer(network['dense_1'], 
+                    num_units=5, nonlinearity=lasagne.nonlinearities.tanh)
+
 print network['conv_1'].W.shape.eval()
 
-network['l_out'] = lasagne.layers.DenseLayer(network['pool_2'], num_units = 10, 
+network['l_out'] = lasagne.layers.DenseLayer(network['dense_2'], num_units = 10, 
               nonlinearity=T.nnet.softmax)
 
 print "Network has been built"
@@ -79,7 +86,7 @@ print "Train 'Prediction', 'Loss' 'Acc', 'Updates' and 'Train_fn' are ready"
 # Test side
 # Test prediction
 test_prediction = lasagne.layers.get_output(network['l_out'], deterministic=True)
-#f = theano.function([X], T.argmax(test_prediction, axis=1))
+f = theano.function([X], test_prediction)
 
 # Loss function for train
 test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, y)
@@ -96,7 +103,7 @@ print "Test 'Prediction', 'Loss', 'Acc' and 'Val_fn' are ready"
 
 print "Loading X_train, y_train, X_val, y_val datasets ..."
 
-X_train, y_train, X_val, y_val = data_loader.load_small_train(
+X_train, y_train, X_val, y_val = data_loader.load_small_train(shuffle=True,
     data_count=50, image_size=IMAGE_SIZE);
 
 print "Datasests are loaded"
@@ -113,7 +120,7 @@ for epoch in range(N_EPOCH):
     start_time = time.time();
     
     for batch in iterate_minibatches(X_train, y_train, 10, shuffle=True):
-        inputs, targets = batch
+        inputs, targets = batch;
         t_err, t_acc = train_fn(inputs, targets);
         train_err += t_err;
         train_acc += t_acc;
@@ -141,7 +148,7 @@ for epoch in range(N_EPOCH):
         
         
 
-
+test.test(f=f, image_size=IMAGE_SIZE)
 
 
 
