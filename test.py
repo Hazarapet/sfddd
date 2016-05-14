@@ -8,6 +8,7 @@ Created on Wed May 11 22:02:35 2016
 import matplotlib.pyplot as plt
 import numpy as np
 import glob
+import pickle
 from PIL import Image
 import csv
 
@@ -53,6 +54,10 @@ def test(f=None, image_size={'width': 640, 'height': 480}):
     
     
 #test()
+with open('data/vgg19.pkl', 'rb') as fileP:   
+    weights = pickle.load(fileP);
+    for i in weights['param values']:
+        print i.shape
     
     
     

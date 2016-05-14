@@ -30,7 +30,7 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
 st_time = time.time()
 N_EPOCH = 10
 LAMBDA = 1e-3
-IMAGE_SIZE = {'height': 100, 'width': int(100*1.33)};
+IMAGE_SIZE = {'height': 50, 'width': int(50*1.33)};
 
 X = T.tensor4('X')
 y = T.vector('y', dtype='int32')
@@ -40,28 +40,75 @@ y = T.vector('y', dtype='int32')
 print "Preparing to build Network ...";
 network = {};
 
-network['l_in'] = lasagne.layers.InputLayer(shape=(None, 1, IMAGE_SIZE['width'], IMAGE_SIZE['height']), input_var = X);
+network['l_in'] = lasagne.layers.InputLayer(shape=(None, 3, IMAGE_SIZE['width'], IMAGE_SIZE['height']), input_var = X);
+
 
 network['conv_1'] = lasagne.layers.Conv2DLayer(network['l_in'], 
-                    num_filters=80, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    num_filters=64, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
 
-network['pool_1'] = lasagne.layers.Pool2DLayer(network['conv_1'], 2, mode='max')
+network['conv_2'] = lasagne.layers.Conv2DLayer(network['conv_1'], 
+                    num_filters=64, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
 
-network['conv_2'] = lasagne.layers.Conv2DLayer(network['pool_1'], 
-                    num_filters=80, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
 
-network['pool_2'] = lasagne.layers.Pool2DLayer(network['conv_2'], 2, mode='max')
 
-network['dense_1'] = lasagne.layers.DenseLayer(network['pool_2'], 
-                    num_units=500, nonlinearity=lasagne.nonlinearities.tanh)
+network['conv_3'] = lasagne.layers.Conv2DLayer(network['conv_2'], 
+                    num_filters=128, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+
+network['conv_4'] = lasagne.layers.Conv2DLayer(network['conv_3'], 
+                    num_filters=128, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+
+
+
+network['conv_5'] = lasagne.layers.Conv2DLayer(network['conv_4'], 
+                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_6'] = lasagne.layers.Conv2DLayer(network['conv_5'], 
+                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_7'] = lasagne.layers.Conv2DLayer(network['conv_6'], 
+                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_8'] = lasagne.layers.Conv2DLayer(network['conv_7'], 
+                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+
+
+network['conv_9'] = lasagne.layers.Conv2DLayer(network['conv_8'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_10'] = lasagne.layers.Conv2DLayer(network['conv_9'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_11'] = lasagne.layers.Conv2DLayer(network['conv_10'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_12'] = lasagne.layers.Conv2DLayer(network['conv_11'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_13'] = lasagne.layers.Conv2DLayer(network['conv_12'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_14'] = lasagne.layers.Conv2DLayer(network['conv_13'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_15'] = lasagne.layers.Conv2DLayer(network['conv_14'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+                    
+network['conv_16'] = lasagne.layers.Conv2DLayer(network['conv_15'], 
+                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
+
+
+
+network['dense_1'] = lasagne.layers.DenseLayer(network['conv_16'], 
+                    num_units=1000, nonlinearity=lasagne.nonlinearities.tanh)
                     
 network['dense_2'] = lasagne.layers.DenseLayer(network['dense_1'], 
-                    num_units=500, nonlinearity=lasagne.nonlinearities.tanh)
-
-print network['conv_1'].W.shape.eval()
+                    num_units=1000, nonlinearity=lasagne.nonlinearities.tanh)
 
 network['l_out'] = lasagne.layers.DenseLayer(network['dense_2'], num_units = 10, 
               nonlinearity=T.nnet.softmax)
+
+print network['dense_1'].get_params()
 
 print "Network has been built"
 
@@ -74,7 +121,10 @@ train_acc = T.mean(T.eq(T.argmax(train_prediction, axis=1), y),
                    dtype=theano.config.floatX)
 
 params = lasagne.layers.get_all_params(network['l_out'], trainable = True)
-updates = lasagne.updates.nesterov_momentum(train_loss,
+
+print params[0].shape.eval()
+
+updates = lasagne.updates.adadelta(train_loss,
             params, learning_rate=0.01, momentum=0.9)
             
 # train loss function    
@@ -104,7 +154,7 @@ print "Test 'Prediction', 'Loss', 'Acc' and 'Val_fn' are ready"
 print "Loading X_train, y_train, X_val, y_val datasets ..."
 
 X_train, y_train, X_val, y_val = data_loader.load_small_train(shuffle=True,
-    data_count=50, image_size=IMAGE_SIZE);
+    data_count=100, image_size=IMAGE_SIZE);
 
 print "Datasests are loaded"
 
