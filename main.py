@@ -171,11 +171,11 @@ for epoch in range(N_EPOCH):
     start_time = time.time();
     
     for batch in iterate_minibatches(X_train, y_train, 10, shuffle=True):
-         inputs, targets = batch;
-         t_err, t_acc = train_fn(inputs, targets);
-         train_err += t_err;
-         train_acc += t_acc;
-         train_batches +=1;
+        inputs, targets = batch;
+        t_err, t_acc = train_fn(inputs, targets);
+        train_err += t_err;
+        train_acc += t_acc;
+        train_batches +=1;
     
     val_err = 0;
     val_acc = 0;
