@@ -6,6 +6,7 @@ Created on Sat May  7 18:12:17 2016
 import matplotlib.pyplot as plt
 import numpy as np
 import glob
+import pickle
 from PIL import Image
 from scipy import misc
 
@@ -60,7 +61,10 @@ def load_small_train(data_count = 10, shuffle = False, image_size={'width': 640,
     
         
         
-
+def loadVGG19():
+    with open('data/vgg19.pkl', 'rb') as fileP:   
+        weights = pickle.load(fileP);
+        return weights['param values'];
 
 
 

@@ -98,7 +98,6 @@ network['conv_16'] = lasagne.layers.Conv2DLayer(network['conv_15'],
                     num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
 
 
-
 network['dense_1'] = lasagne.layers.DenseLayer(network['conv_16'], 
                     num_units=1000, nonlinearity=lasagne.nonlinearities.tanh)
                     
@@ -108,9 +107,13 @@ network['dense_2'] = lasagne.layers.DenseLayer(network['dense_1'],
 network['l_out'] = lasagne.layers.DenseLayer(network['dense_2'], num_units = 10, 
               nonlinearity=T.nnet.softmax)
 
-print network['dense_1'].get_params()
-
 print "Network has been built"
+
+print "loading VGG19 Pre-Trained weights"
+
+VGG19_Weights = data_loader.loadVGG19();
+
+print "VGG19 Pre-Trained Weights has been loaded"
 
 train_prediction = lasagne.layers.get_output(network['l_out']);
 
@@ -121,8 +124,6 @@ train_acc = T.mean(T.eq(T.argmax(train_prediction, axis=1), y),
                    dtype=theano.config.floatX)
 
 params = lasagne.layers.get_all_params(network['l_out'], trainable = True)
-
-print params[0].shape.eval()
 
 updates = lasagne.updates.adadelta(train_loss,
             params, learning_rate=0.01, momentum=0.9)
@@ -169,12 +170,7 @@ for epoch in range(N_EPOCH):
     train_batches = 0;
     start_time = time.time();
     
-    for batch in iterate_minibatches(X_train, y_train, 10, shuffle=True):
-        inputs, targets = batch;
-        t_err, t_acc = train_fn(inputs, targets);
-        train_err += t_err;
-        train_acc += t_acc;
-        train_batches +=1;
+    
     
     val_err = 0;
     val_acc = 0;
