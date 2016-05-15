@@ -6,10 +6,11 @@ Created on Fri May  6 20:53:25 2016
 
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+os.environ["THEANO_FLAGS"] = "optimizer=None,exception_verbosity=high"
 import theano
 import time
 import lasagne
-import lasagne.regularization as reg
 import theano.tensor as T
 
 import data_loader
@@ -59,50 +60,12 @@ network['conv_4'] = lasagne.layers.Conv2DLayer(network['conv_3'],
 
 
 
-network['conv_5'] = lasagne.layers.Conv2DLayer(network['conv_4'], 
-                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_6'] = lasagne.layers.Conv2DLayer(network['conv_5'], 
-                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_7'] = lasagne.layers.Conv2DLayer(network['conv_6'], 
-                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_8'] = lasagne.layers.Conv2DLayer(network['conv_7'], 
-                    num_filters=256, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
 
-
-network['conv_9'] = lasagne.layers.Conv2DLayer(network['conv_8'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_10'] = lasagne.layers.Conv2DLayer(network['conv_9'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_11'] = lasagne.layers.Conv2DLayer(network['conv_10'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_12'] = lasagne.layers.Conv2DLayer(network['conv_11'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_13'] = lasagne.layers.Conv2DLayer(network['conv_12'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_14'] = lasagne.layers.Conv2DLayer(network['conv_13'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_15'] = lasagne.layers.Conv2DLayer(network['conv_14'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-                    
-network['conv_16'] = lasagne.layers.Conv2DLayer(network['conv_15'], 
-                    num_filters=512, filter_size=3, nonlinearity=lasagne.nonlinearities.tanh)
-
-
-network['dense_1'] = lasagne.layers.DenseLayer(network['conv_16'], 
-                    num_units=1000, nonlinearity=lasagne.nonlinearities.tanh)
+network['dense_1'] = lasagne.layers.DenseLayer(network['conv_4'], 
+                    num_units=10, nonlinearity=lasagne.nonlinearities.tanh)
                     
 network['dense_2'] = lasagne.layers.DenseLayer(network['dense_1'], 
-                    num_units=1000, nonlinearity=lasagne.nonlinearities.tanh)
+                    num_units=10, nonlinearity=lasagne.nonlinearities.tanh)
 
 network['l_out'] = lasagne.layers.DenseLayer(network['dense_2'], num_units = 10, 
               nonlinearity=T.nnet.softmax)
@@ -112,6 +75,16 @@ print "Network has been built"
 print "loading VGG19 Pre-Trained weights"
 
 VGG19_Weights = data_loader.loadVGG19();
+
+lasagne.layers.set_all_param_values(network['conv_4'], 
+                [VGG19_Weights[0], 
+                 VGG19_Weights[1], 
+                 VGG19_Weights[2], 
+                 VGG19_Weights[3], 
+                 VGG19_Weights[4], 
+                 VGG19_Weights[5], 
+                 VGG19_Weights[6], 
+                 VGG19_Weights[7]])
 
 print "VGG19 Pre-Trained Weights has been loaded"
 
@@ -123,9 +96,11 @@ train_loss = train_loss.mean();
 train_acc = T.mean(T.eq(T.argmax(train_prediction, axis=1), y), 
                    dtype=theano.config.floatX)
 
-params = lasagne.layers.get_all_params(network['l_out'], trainable = True)
+#params = lasagne.layers.get_all_params(network['l_out'], trainable = True)
 
-updates = lasagne.updates.adadelta(train_loss,
+params = network["l_out"].get_params(trainable=True) + network["dense_1"].get_params(trainable=True) + network["dense_1"].get_params(trainable=True)
+
+updates = lasagne.updates.momentum(train_loss,
             params, learning_rate=0.01, momentum=0.9)
             
 # train loss function    
