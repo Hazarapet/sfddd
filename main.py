@@ -106,9 +106,9 @@ train_loss = train_loss.mean();
 train_acc = T.mean(T.eq(T.argmax(train_prediction, axis=1), y), 
                    dtype=theano.config.floatX)
 
-#params = lasagne.layers.get_all_params(network['l_out'], trainable = True)
+params = lasagne.layers.get_all_params(network['l_out'], trainable = True)
     
-params = network["dense_1"].get_params(trainable=True) + network["dense_2"].get_params(trainable=True) + network["l_out"].get_params(trainable=True)
+#params = network["dense_1"].get_params(trainable=True) + network["dense_2"].get_params(trainable=True) + network["l_out"].get_params(trainable=True)
 
 #for p in params:
  #   print("dense params count: {} | shape: {}".format(len(params), p.shape.eval()))
