@@ -34,8 +34,6 @@ def load_small_train(data_count = 10, shuffle = False, image_size={'width': 640,
             img = np.asarray(Image.open(i).convert('RGB').resize((image_size['width'], image_size['height'])))            
             #img = img.reshape(1, image_size['height'], image_size['width'])
             
-            #img = misc.imread(i)
-            #img = misc.imresize(img, [image_size['height'], image_size['width']])
             # show resized image
             #plt.imshow(img); 
             #plt.show()
