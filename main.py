@@ -69,10 +69,10 @@ network['conv_6'] = lasagne.layers.Conv2DLayer(network['conv_5'],
 
 
 network['dense_1'] = lasagne.layers.DenseLayer(network['conv_6'], 
-                    num_units=100, nonlinearity=lasagne.nonlinearities.sigmoid)
+                    num_units=200, nonlinearity=lasagne.nonlinearities.sigmoid)
                     
 network['dense_2'] = lasagne.layers.DenseLayer(network['dense_1'], 
-                    num_units=100, nonlinearity=lasagne.nonlinearities.sigmoid)
+                    num_units=200, nonlinearity=lasagne.nonlinearities.sigmoid)
 
 network['l_out'] = lasagne.layers.DenseLayer(network['dense_2'], num_units = 10, 
               nonlinearity=T.nnet.softmax)
@@ -88,13 +88,13 @@ VGG19_Weights = data_loader.loadVGG19();
 
 #sys.exit();
 
-lasagne.layers.set_all_param_values(network['conv_6'], 
-                [VGG19_Weights[0], VGG19_Weights[1], 
-                 VGG19_Weights[2], VGG19_Weights[3], 
-                 VGG19_Weights[4], VGG19_Weights[5], 
-                 VGG19_Weights[6], VGG19_Weights[7],
-                 VGG19_Weights[8], VGG19_Weights[9],
-                 VGG19_Weights[10], VGG19_Weights[11]])
+#lasagne.layers.set_all_param_values(network['conv_6'], 
+#                [VGG19_Weights[0], VGG19_Weights[1], 
+#                 VGG19_Weights[2], VGG19_Weights[3], 
+#                 VGG19_Weights[4], VGG19_Weights[5], 
+#                 VGG19_Weights[6], VGG19_Weights[7],
+#                 VGG19_Weights[8], VGG19_Weights[9],
+#                 VGG19_Weights[10], VGG19_Weights[11]])
 
 print "VGG19 Pre-Trained Weights has been loaded"
 
